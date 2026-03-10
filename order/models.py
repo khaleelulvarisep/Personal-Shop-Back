@@ -25,6 +25,14 @@ class Order(models.Model):
         related_name='orders'
     )
 
+    delivery_partner = models.ForeignKey(
+    settings.AUTH_USER_MODEL,
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    related_name="assigned_orders"
+)
+
     items_text = models.TextField()
 
     note = models.TextField(blank=True, null=True)
