@@ -6,9 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class DeliveryLoginAPIView(APIView):
-
     def post(self, request):
-
         username = request.data.get("username")
         password = request.data.get("password")
 

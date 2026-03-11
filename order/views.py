@@ -11,7 +11,6 @@ from .serializers import OrderSerializer
 
 
 class CreateOrderView(APIView):
-
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -31,11 +30,8 @@ class CreateOrderView(APIView):
 
 
 class UserOrdersView(APIView):
-
     permission_classes = [IsAuthenticated]
-
     def get(self, request):
-
         orders = Order.objects.filter(customer=request.user).order_by("-created_at")
 
         serializer = OrderSerializer(orders, many=True)
@@ -50,9 +46,7 @@ class UserOrdersView(APIView):
 
 
 class AllOrdersAPIView(APIView):
-
     def get(self, request):
-
         orders = Order.objects.filter(status="pending").order_by("-created_at")
 
         serializer = OrderSerializer(orders, many=True)
@@ -62,12 +56,9 @@ class AllOrdersAPIView(APIView):
 
 
 class NearbyOrdersAPIView(APIView):
-
     def get(self, request):
-
         lat = request.query_params.get("lat")
         lng = request.query_params.get("lng")
-
         if not lat or not lng:
             return Response({"error": "Location required"}, status=400)
 
@@ -94,10 +85,10 @@ class NearbyOrdersAPIView(APIView):
 
         return Response(nearby_orders, status=status.HTTP_200_OK)      
 
+
+
 class OrderDetailAPIView(APIView):
-
     def get(self, request, order_id):
-
         try:
             order = Order.objects.get(id=order_id)
         except Order.DoesNotExist:
@@ -105,7 +96,37 @@ class OrderDetailAPIView(APIView):
                 {"error": "Order not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
-
         serializer = OrderSerializer(order)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)          
+        return Response(serializer.data, status=status.HTTP_200_OK) 
+
+
+class AcceptOrderAPIView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, order_id):
+
+        try:
+            order = Order.objects.get(id=order_id)
+
+        except Order.DoesNotExist:
+            return Response(
+                {"error": "Order not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        if order.status != "pending":
+            return Response(
+                {"error": "Order already accepted"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        order.status = "accepted"
+        order.delivery_partner = request.user
+        order.save()
+
+        return Response(
+            {"message": "Order accepted successfully"},
+            status=status.HTTP_200_OK
+        )             
