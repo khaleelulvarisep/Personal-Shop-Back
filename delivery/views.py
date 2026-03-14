@@ -30,6 +30,10 @@ class DeliveryLoginAPIView(APIView):
         return Response({
             "message": "Login successful",
             "access": str(refresh.access_token),
-            "refresh": str(refresh)
+            "refresh": str(refresh),
+             "user": {
+                "id": user.id,
+                "email": user.email,
+            }
         })
 # Create your views here.
