@@ -36,4 +36,8 @@ class DeliveryLoginAPIView(APIView):
                 "email": user.email,
             }
         })
+
+
+
+
 # Create your views here.

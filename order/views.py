@@ -129,4 +129,22 @@ class AcceptOrderAPIView(APIView):
         return Response(
             {"message": "Order accepted successfully"},
             status=status.HTTP_200_OK
-        )             
+        )    
+
+
+
+class DriverAcceptedOrdersAPIView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        driver = request.user
+
+        orders = Order.objects.filter(
+            delivery_partner=driver
+        ).exclude(status="delivered").order_by("-created_at")
+
+        serializer = OrderSerializer(orders, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
