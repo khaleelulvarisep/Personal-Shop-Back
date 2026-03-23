@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'channels',
+    'drf_yasg',
     'users',
     'order',
     'delivery',
