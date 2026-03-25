@@ -143,6 +143,11 @@ class LoginView(APIView):
                 "message": "Login successful.",
                 "access": str(refresh.access_token),
                 "refresh": str(refresh),
+                 "user": {                     # ✅ ADD THIS BLOCK
+                    "id": user.id
+                    # "email": user.email,
+                    # "role": user.role,
+                }
             },
             status=status.HTTP_200_OK,
         )

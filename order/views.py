@@ -4,11 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from geopy.distance import geodesic
-
-
-from .models import Order
-from .serializers import OrderSerializer
-
+from .serializers import OrderSerializer,ChatMessageSerializer
+from .models import ChatMessage, Order
 
 class CreateOrderView(APIView):
     permission_classes = [IsAuthenticated]
@@ -148,3 +145,50 @@ class DriverAcceptedOrdersAPIView(APIView):
         serializer = OrderSerializer(orders, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
+class ChatMessageListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, order_id):
+
+        try:
+            order = Order.objects.get(id=order_id)
+
+            # Allow only customer or driver
+            if request.user != order.customer and request.user != order.driver:
+                return Response({"error": "Unauthorized"}, status=403)
+
+            messages = ChatMessage.objects.filter(order=order).order_by("timestamp")
+            serializer = ChatMessageSerializer(messages, many=True)
+
+            return Response(serializer.data)
+
+        except Order.DoesNotExist:
+            return Response({"error": "Order not found"}, status=404)
+
+
+
+
+
+
+class ChatMessagesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, order_id):
+        messages = ChatMessage.objects.filter(order_id=order_id).order_by("timestamp")
+
+        data = [
+            {
+                "id": msg.id,
+                "message": msg.message,
+                "user_id": msg.sender.id,
+                "username": msg.sender.email,
+                "timestamp": msg.timestamp,
+            }
+            for msg in messages
+        ]
+
+        return Response(data)            

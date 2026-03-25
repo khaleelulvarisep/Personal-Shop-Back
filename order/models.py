@@ -1,7 +1,8 @@
 from django.db import models
-from django.db import models
+from django.contrib.auth import get_user_model
 from django.conf import settings
 
+User = get_user_model()
 
 class Order(models.Model):
 
@@ -63,4 +64,28 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order {self.id} - {self.customer.email}"
+    
+
+
+
+
+
+
+
+class ChatMessage(models.Model):
+    sender = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
+
+    order = models.ForeignKey(   # ✅ ADD THIS
+        'order.Order',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='messages'
+    )
+
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
 # Create your models here.
